@@ -1,54 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Life Clarity Game</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life Sim // Daily Clarity Game</title>
 
-    <!-- Drawflow CSS CDN -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow@0.0.58/dist/drawflow.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <!-- Drawflow -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/drawflow@0.0.59/dist/drawflow.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/drawflow@0.0.59/dist/drawflow.min.js"></script>
 </head>
 <body>
 
-    <div class="game-header">
-        <h2>🎮 Daily Life Sim & Clarity Tracker</h2>
-        <button id="saveBtn" onclick="saveDay()">End & Save Day</button>
-    </div>
+  <div class="app-shell">
 
-    <div class="game-wrapper">
-        <!-- CONTROL PANEL -->
-        <div class="sidebar">
-            <h3>🗂️ Log Your Day</h3>
-            <p class="subtitle">Choose what you did:</p>
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <h1 class="sidebar-title">Daily Log</h1>
 
-            <div class="form-group">
-                <label for="habitSelect">Select Habit:</label>
-                <select id="habitSelect" class="styled-select">
-                    <option value="reels">📱 Entertainment (Reels/Scroll)</option>
-                    <option value="work">⚡ Productivity (Deep Work)</option>
-                    <option value="gym">💪 Health (Gym/Workout)</option>
-                </select>
-            </div>
+      <div class="control-group">
+        <label for="category-select">Category</label>
+        <select id="category-select"></select>
+      </div>
 
-            <button class="add-btn" onclick="handleDirectClick()">Add to Canvas ➕</button>
+      <div class="control-group">
+        <label for="habit-select">Habit</label>
+        <select id="habit-select"></select>
+      </div>
+
+      <div class="control-group">
+        <label for="custom-note-input">Note (optional)</label>
+        <input
+          type="text"
+          id="custom-note-input"
+          placeholder="e.g. 'felt kinda proud tbh'"
+          maxlength="80"
+        />
+      </div>
+
+      <button id="add-node-btn">+ Add to Canvas</button>
+
+      <div class="happiness-meter-wrap">
+        <label>Vibe Meter</label>
+        <div class="happiness-bar-track">
+          <div id="happiness-bar-fill" class="happiness-bar-fill"></div>
         </div>
+        <span id="happiness-value">50</span>/100
+      </div>
 
-        <!-- CENTRE: The Canvas & Avatar Stage -->
-        <div id="drawflow">
-            <div id="avatar-stage">
-                <div id="speech-bubble" class="bubble">"Hey bestie, what are we doing today?"</div>
-                <div id="avatar-character" class="avatar">😐</div>
-            </div>
+      <div class="sidebar-actions">
+        <button id="download-btn" class="secondary-btn">⬇ Download Backup</button>
+      </div>
+      <div class="sidebar-actions">
+        <label for="upload-input" class="secondary-btn upload-label">⬆ Load from File</label>
+        <input type="file" id="upload-input" accept="application/json" hidden />
+      </div>
+
+      <p id="status-msg" class="status-msg"></p>
+    </aside>
+
+    <!-- CANVAS -->
+    <main class="canvas-wrap">
+      <div id="drawflow" class="drawflow-canvas"></div>
+
+      <!-- Fixed avatar overlay -->
+      <div id="avatar-container" class="avatar-mood-neutral">
+        <div class="speech-bubble">
+          <p id="avatar-speech">sup. log something and let's see the damage.</p>
         </div>
-    </div>
+        <div id="avatar-emoji" class="avatar-emoji">😐</div>
+      </div>
+    </main>
 
-    <!-- Drawflow JS CDN -->
-    <script src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow@0.0.58/dist/drawflow.min.js"></script>
+  </div>
 
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/game.js') }}?v=5"></script>
+  <script src="{{ url_for('static', filename='js/game.js') }}"></script>
 </body>
 </html>
