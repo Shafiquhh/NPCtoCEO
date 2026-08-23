@@ -64,12 +64,28 @@
     <main class="canvas-wrap">
       <div id="drawflow" class="drawflow-canvas"></div>
 
+      <!-- Particle / floating-score effects layer -->
+      <div id="fx-layer"></div>
+
       <!-- Fixed avatar overlay -->
       <div id="avatar-container" class="avatar-mood-neutral">
         <div class="speech-bubble">
           <p id="avatar-speech">sup. log something and let's see the damage.</p>
         </div>
-        <div id="avatar-emoji" class="avatar-emoji">😐</div>
+        <div class="avatar-visual">
+          <svg class="charge-ring" viewBox="0 0 140 140">
+            <circle class="charge-ring-track" cx="70" cy="70" r="60" />
+            <circle
+              id="charge-ring-progress"
+              class="charge-ring-progress"
+              cx="70"
+              cy="70"
+              r="60"
+              transform="rotate(-90 70 70)"
+            />
+          </svg>
+          <div id="avatar-emoji" class="avatar-emoji">😐</div>
+        </div>
       </div>
     </main>
 

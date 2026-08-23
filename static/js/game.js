@@ -72,6 +72,45 @@ function initDrawflow() {
   editor = new Drawflow(container);
   editor.reroute = true;
   editor.start();
+
+  initConnectionDrawAnimation(container);
+}
+
+// Watches for newly drawn connection paths and animates them "drawing in"
+// via stroke-dashoffset, instead of just popping into existence.
+function initConnectionDrawAnimation(drawflowContainer) {
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType !== 1) return;
+
+        const paths = node.matches && node.matches("path.main-path")
+          ? [node]
+          : node.querySelectorAll
+            ? node.querySelectorAll("path.main-path")
+            : [];
+
+        paths.forEach((path) => {
+          try {
+            const length = path.getTotalLength();
+            path.style.strokeDasharray = length;
+            path.style.strokeDashoffset = length;
+            // force a reflow so the browser registers the starting state
+            // before we transition to the end state
+            path.getBoundingClientRect();
+            path.style.transition = "stroke-dashoffset 0.5s ease";
+            requestAnimationFrame(() => {
+              path.style.strokeDashoffset = "0";
+            });
+          } catch (err) {
+            // getTotalLength can fail on a path with no length yet; skip silently
+          }
+        });
+      });
+    });
+  });
+
+  observer.observe(drawflowContainer, { childList: true, subtree: true });
 }
 
 // ============================================================
@@ -156,6 +195,9 @@ function handleAddNode() {
 
   applyHappinessDelta(habit.score);
   updateAvatarReaction(habit);
+  triggerAvatarReactionAnimation(habit.score);
+  triggerHappinessBarPulse();
+  spawnScoreEffects(habit.score);
 
   noteInput.value = "";
 }
@@ -178,6 +220,87 @@ function updateAvatarReaction(habit) {
   container.className = "avatar-mood-" + habit.mood;
 }
 
+// Restarts a CSS animation on an element by removing then re-adding its
+// class (a browser reflow in between forces the animation to replay,
+// since just re-adding the same class name otherwise does nothing).
+function replayAnimation(el, className) {
+  el.classList.remove(className);
+  void el.offsetWidth; // force reflow
+  el.classList.add(className);
+}
+
+function triggerAvatarReactionAnimation(score) {
+  const emoji = document.getElementById("avatar-emoji");
+  const bubble = document.querySelector(".speech-bubble");
+
+  emoji.classList.remove("avatar-bump", "avatar-shake");
+  void emoji.offsetWidth;
+  emoji.classList.add(score >= 0 ? "avatar-bump" : "avatar-shake");
+
+  replayAnimation(bubble, "speech-bubble-pop");
+}
+
+// ============================================================
+// PARTICLE BURST + FLOATING SCORE POPUP
+// ============================================================
+
+function spawnScoreEffects(score) {
+  const fxLayer = document.getElementById("fx-layer");
+  const wrap = document.querySelector(".canvas-wrap");
+  const avatarEmoji = document.getElementById("avatar-emoji");
+
+  const wrapRect = wrap.getBoundingClientRect();
+  const emojiRect = avatarEmoji.getBoundingClientRect();
+
+  const originX = emojiRect.left + emojiRect.width / 2 - wrapRect.left;
+  const originY = emojiRect.top - wrapRect.top;
+
+  spawnScorePopup(fxLayer, originX, originY, score);
+  spawnParticleBurst(fxLayer, originX, originY, score);
+}
+
+function spawnScorePopup(fxLayer, x, y, score) {
+  const popup = document.createElement("div");
+  popup.className = "score-popup";
+  popup.textContent = (score >= 0 ? "+" : "") + score;
+  popup.style.color = score >= 0 ? "#6bff8f" : "#ff6b6b";
+  popup.style.left = x + "px";
+  popup.style.top = y + "px";
+
+  fxLayer.appendChild(popup);
+  popup.addEventListener("animationend", () => popup.remove());
+}
+
+function spawnParticleBurst(fxLayer, x, y, score) {
+  const particleCount = 16;
+  const goodColors = ["#6bff8f", "#ffd93d", "#7c6cf0"];
+  const badColors = ["#ff6b6b", "#8a8f9e", "#5a4a4a"];
+  const colors = score >= 0 ? goodColors : badColors;
+
+  for (let i = 0; i < particleCount; i++) {
+    const particle = document.createElement("div");
+    particle.className = "particle";
+
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 40 + Math.random() * 70;
+    const tx = Math.cos(angle) * distance;
+    // good particles drift upward more; bad particles sink slightly
+    const ty = Math.sin(angle) * distance - (score >= 0 ? 50 : -10);
+
+    particle.style.setProperty("--tx", tx + "px");
+    particle.style.setProperty("--ty", ty + "px");
+    particle.style.left = x + "px";
+    particle.style.top = y + "px";
+    const size = 4 + Math.random() * 5;
+    particle.style.width = size + "px";
+    particle.style.height = size + "px";
+    particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+    fxLayer.appendChild(particle);
+    particle.addEventListener("animationend", () => particle.remove());
+  }
+}
+
 // ============================================================
 // HAPPINESS METER
 // ============================================================
@@ -187,9 +310,58 @@ function applyHappinessDelta(delta) {
   updateHappinessDisplay();
 }
 
+function triggerHappinessBarPulse() {
+  const fill = document.getElementById("happiness-bar-fill");
+  replayAnimation(fill, "pulse");
+
+  const ring = document.getElementById("charge-ring-progress");
+  replayAnimation(ring, "pulse");
+}
+
 function updateHappinessDisplay() {
   document.getElementById("happiness-bar-fill").style.width = happiness + "%";
   document.getElementById("happiness-value").textContent = happiness;
+  updateChargeRing();
+}
+
+// ============================================================
+// AVATAR CHARGE RING (circular vibe meter around the avatar's head)
+// ============================================================
+
+function updateChargeRing() {
+  const ring = document.getElementById("charge-ring-progress");
+  const radius = 60;
+  const circumference = 2 * Math.PI * radius;
+
+  const offset = circumference * (1 - happiness / 100);
+
+  ring.style.strokeDasharray = circumference;
+  ring.style.strokeDashoffset = offset;
+  ring.style.stroke = getChargeColor(happiness);
+}
+
+// Interpolates red -> yellow -> green as happiness goes 0 -> 50 -> 100
+function getChargeColor(percent) {
+  const red = [255, 107, 107];
+  const yellow = [255, 217, 61];
+  const green = [107, 255, 143];
+
+  let start, end, t;
+  if (percent <= 50) {
+    start = red;
+    end = yellow;
+    t = percent / 50;
+  } else {
+    start = yellow;
+    end = green;
+    t = (percent - 50) / 50;
+  }
+
+  const r = Math.round(start[0] + (end[0] - start[0]) * t);
+  const g = Math.round(start[1] + (end[1] - start[1]) * t);
+  const b = Math.round(start[2] + (end[2] - start[2]) * t);
+
+  return `rgb(${r}, ${g}, ${b})`;
 }
 
 // ============================================================
