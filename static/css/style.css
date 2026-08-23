@@ -1,0 +1,162 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+
+    color: #f8fafc;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: #0F2854;
+    border-bottom: 1px solid #334155;
+    height: 50px;
+}
+
+#saveBtn {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.game-wrapper {
+    display: flex;
+    height: calc(100vh - 61px);
+    position: relative;
+}
+
+.sidebar {
+    width: 280px;
+    background: #1C4D8D;
+    border-right: 1px solid #334155;
+    padding: 15px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    position: relative;
+    z-index: 100; /* Ensures it sits on top of the canvas */
+}
+
+.category-group {
+    margin-bottom: 20px;
+}
+
+.category-title {
+    font-weight: bold;
+    font-size: 14px;
+    color: #94a3b8;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.drag-item {
+    padding: 10px;
+    margin-bottom: 8px;
+    background: #4988C4;
+    border-radius: 6px;
+    cursor: grab;
+    font-size: 13px;
+    transition: background 0.2s;
+}
+
+.drag-item:hover {
+    background: #475569;
+}
+
+/* Canvas & Avatar Stage */
+#drawflow {
+    flex: 1;
+    height: 100%;
+    background: #BDE8F5;
+    background-size: 25px 25px;
+    background-image: radial-gradient(black 1px, transparent 1px);
+    position: relative;
+}
+
+#avatar-stage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none; /* Allows drawing lines through it */
+    z-index: 10;
+}
+
+.avatar {
+    font-size: 80px;
+    transition: transform 0.3s ease;
+}
+
+.bubble {
+    background: #ffffff;
+    color: #0f172a;
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    position: relative;
+    max-width: 220px;
+}
+
+.bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 8px 8px 0;
+    border-style: solid;
+    border-color: #ffffff transparent;
+}
+.subtitle {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 12px;
+    color: #cbd5e1;
+    margin-bottom: 6px;
+}
+
+.styled-select {
+    width: 100%;
+    padding: 10px;
+    background: #334155;
+    color: white;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+}
+
+.add-btn {
+    width: 100%;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.add-btn:hover {
+    background-color: #2563eb;
+}
