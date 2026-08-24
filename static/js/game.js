@@ -368,8 +368,11 @@ function triggerHappinessBarPulse() {
   const fill = document.getElementById("happiness-bar-fill");
   replayAnimation(fill, "pulse");
 
-  const ring = document.getElementById("charge-ring-progress");
-  replayAnimation(ring, "pulse");
+  // Pulse all active battery bars
+  const bars = document.querySelectorAll(".battery-bar.active");
+  bars.forEach((bar) => {
+    replayAnimation(bar, "pulse");
+  });
 }
 
 function updateHappinessDisplay() {
@@ -377,23 +380,27 @@ function updateHappinessDisplay() {
   fill.style.width = happiness + "%";
   fill.style.backgroundColor = getChargeColor(happiness);
   document.getElementById("happiness-value").textContent = happiness;
-  updateChargeRing();
+  updateBatteryBars();
 }
 
 // ============================================================
-// AVATAR CHARGE RING (circular vibe meter around the avatar's head)
+// AVATAR CHARGE BATTERY (vertical bar-fill meter)
 // ============================================================
 
-function updateChargeRing() {
-  const ring = document.getElementById("charge-ring-progress");
-  const radius = 60;
-  const circumference = 2 * Math.PI * radius;
+function updateBatteryBars() {
+  // 6 bars total, each bar represents ~16.67% (100/6)
+  const barsPercentage = Math.ceil((happiness / 100) * 6);
 
-  const offset = circumference * (1 - happiness / 100);
-
-  ring.style.strokeDasharray = circumference;
-  ring.style.strokeDashoffset = offset;
-  ring.style.stroke = getChargeColor(happiness);
+  for (let i = 1; i <= 6; i++) {
+    const bar = document.querySelector(`.battery-bar[data-bar="${i}"]`);
+    if (i <= barsPercentage) {
+      bar.classList.add("active");
+      bar.style.fill = getChargeColor(happiness);
+    } else {
+      bar.classList.remove("active");
+      bar.style.fill = "transparent";
+    }
+  }
 }
 
 // Interpolates comic-red -> comic-yellow -> comic-green as happiness

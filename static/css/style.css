@@ -383,58 +383,53 @@ input[type="text"]:focus {
   filter: drop-shadow(0 0 0 var(--comic-black)) drop-shadow(3px 3px 0 var(--comic-black));
 }
 
-.charge-ring {
+/* Comic starburst backdrop — classic pop-art impact shape */
+.comic-starburst {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 150px;
-  height: 150px;
+  top: 50%;
+  left: 50%;
+  width: 230px;
+  height: 230px;
+  transform: translate(-50%, -50%);
+  background: var(--comic-yellow);
+  clip-path: polygon(
+    50% 0%, 61% 32%, 88% 12%, 78% 42%,
+    100% 50%, 78% 58%, 88% 88%, 61% 68%,
+    50% 100%, 39% 68%, 12% 88%, 22% 58%,
+    0% 50%, 22% 42%, 12% 12%, 39% 32%
+  );
+  z-index: 0;
+  filter: drop-shadow(0 0 0 var(--comic-black)) drop-shadow(3px 3px 0 var(--comic-black));
+}
+
+.charge-battery {
+  position: absolute;
+  top: 110px;
+  left: 41px;
+  width: 70px;
+  height: 70px;
   z-index: 1;
-  animation: chargeRingSpin 18s linear infinite;
+  transform: rotate(90deg);
 }
 
-@keyframes chargeRingSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.battery-bar {
+  fill: var(--comic-red);
+  transition: fill 0.6s ease;
+  opacity: 0.3;
 }
 
-.charge-ring-track {
-  fill: none;
-  stroke: var(--comic-white);
-  stroke-width: 10;
-  stroke: var(--comic-white);
+.battery-bar.active {
+  opacity: 1;
 }
 
-.charge-ring-track {
-  stroke: var(--comic-white);
-  stroke-opacity: 0.9;
-  stroke-width: 10;
+.battery-bar.pulse {
+  animation: barPulse 0.6s ease;
 }
 
-.charge-ring-progress {
-  fill: none;
-  stroke: var(--comic-green);
-  stroke-width: 8;
-  stroke-linecap: round;
-  stroke-dasharray: 377;
-  stroke-dashoffset: 188.5;
-  paint-order: stroke;
-  transition: stroke-dashoffset 0.6s ease, stroke 0.6s ease;
-}
-
-/* black outline ring drawn via track + a thicker halo behind progress arc */
-.charge-ring-progress {
-  filter: drop-shadow(0 0 0 var(--comic-black));
-}
-
-.charge-ring-progress.pulse {
-  animation: ringGlowPulse 0.6s ease;
-}
-
-@keyframes ringGlowPulse {
-  0% { filter: brightness(1); }
-  50% { filter: brightness(1.6); }
-  100% { filter: brightness(1); }
+@keyframes barPulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
 }
 
 .speech-bubble {

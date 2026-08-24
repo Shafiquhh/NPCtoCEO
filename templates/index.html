@@ -84,17 +84,25 @@
           <p id="avatar-speech">sup. log something and let's see the damage.</p>
         </div>
         <div class="avatar-visual">
-          <div class="comic-starburst"></div>
-          <svg class="charge-ring" viewBox="0 0 140 140">
-            <circle class="charge-ring-track" cx="70" cy="70" r="60" />
-            <circle
-              id="charge-ring-progress"
-              class="charge-ring-progress"
-              cx="70"
-              cy="70"
-              r="60"
-              transform="rotate(-90 70 70)"
-            />
+          <svg class="charge-battery" viewBox="0 0 80 140">
+            <!-- Battery body outline -->
+            <rect x="12" y="18" width="56" height="104" rx="8" fill="none" stroke="#111111" stroke-width="5" />
+            <!-- Battery terminal nub at top -->
+            <rect x="33" y="8" width="14" height="12" rx="2" fill="none" stroke="#111111" stroke-width="4" />
+
+            <!-- 6 bars that fill from bottom to top based on happiness -->
+            <!-- Bar 1 (bottom) - fills first at 0-16% -->
+            <rect class="battery-bar" data-bar="1" x="16" y="105" width="48" height="12" rx="2" />
+            <!-- Bar 2 - fills at 16-33% -->
+            <rect class="battery-bar" data-bar="2" x="16" y="90" width="48" height="12" rx="2" />
+            <!-- Bar 3 - fills at 33-50% -->
+            <rect class="battery-bar" data-bar="3" x="16" y="75" width="48" height="12" rx="2" />
+            <!-- Bar 4 - fills at 50-66% -->
+            <rect class="battery-bar" data-bar="4" x="16" y="60" width="48" height="12" rx="2" />
+            <!-- Bar 5 - fills at 66-83% -->
+            <rect class="battery-bar" data-bar="5" x="16" y="45" width="48" height="12" rx="2" />
+            <!-- Bar 6 (top) - fills at 83-100% -->
+            <rect class="battery-bar" data-bar="6" x="16" y="30" width="48" height="12" rx="2" />
           </svg>
           <div id="avatar-emoji" class="avatar-emoji">😐</div>
         </div>
