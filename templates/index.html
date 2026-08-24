@@ -5,7 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Life Sim // Daily Clarity Game</title>
 
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>😎</text></svg>" />
+
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+
+  <!-- Comic-style display + body fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
 
   <!-- Drawflow -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/drawflow@0.0.59/dist/drawflow.min.css" />
@@ -15,8 +22,12 @@
 
   <div class="app-shell">
 
+    <!-- Mobile-only sidebar toggle -->
+    <button id="sidebar-toggle" class="sidebar-toggle-btn" aria-label="Toggle menu">☰</button>
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
     <!-- LEFT SIDEBAR -->
-    <aside class="sidebar">
+    <aside id="sidebar" class="sidebar">
       <h1 class="sidebar-title">Daily Log</h1>
 
       <div class="control-group">
@@ -73,6 +84,7 @@
           <p id="avatar-speech">sup. log something and let's see the damage.</p>
         </div>
         <div class="avatar-visual">
+          <div class="comic-starburst"></div>
           <svg class="charge-ring" viewBox="0 0 140 140">
             <circle class="charge-ring-track" cx="70" cy="70" r="60" />
             <circle

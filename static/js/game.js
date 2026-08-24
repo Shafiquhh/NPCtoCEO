@@ -61,11 +61,47 @@ document.addEventListener("DOMContentLoaded", () => {
   initDrawflow();
   populateHabitDropdowns();
   updateHappinessDisplay();
+  initSidebarToggle();
 
   document.getElementById("add-node-btn").addEventListener("click", handleAddNode);
   document.getElementById("download-btn").addEventListener("click", handleDownloadBackup);
   document.getElementById("upload-input").addEventListener("change", handleUploadBackup);
 });
+
+// ============================================================
+// MOBILE SIDEBAR DRAWER
+// ============================================================
+
+function initSidebarToggle() {
+  const toggleBtn = document.getElementById("sidebar-toggle");
+  const sidebar = document.getElementById("sidebar");
+  const backdrop = document.getElementById("sidebar-backdrop");
+
+  toggleBtn.addEventListener("click", () => {
+    const isOpen = sidebar.classList.contains("sidebar-open");
+    if (isOpen) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
+  });
+
+  backdrop.addEventListener("click", closeSidebar);
+}
+
+function openSidebar() {
+  document.getElementById("sidebar").classList.add("sidebar-open");
+  document.getElementById("sidebar-backdrop").classList.add("active");
+}
+
+function closeSidebar() {
+  document.getElementById("sidebar").classList.remove("sidebar-open");
+  document.getElementById("sidebar-backdrop").classList.remove("active");
+}
+
+function isMobileViewport() {
+  return window.innerWidth <= 768;
+}
 
 function initDrawflow() {
   const container = document.getElementById("drawflow");
@@ -200,6 +236,10 @@ function handleAddNode() {
   spawnScoreEffects(habit.score);
 
   noteInput.value = "";
+
+  if (isMobileViewport()) {
+    closeSidebar();
+  }
 }
 
 function escapeHtml(str) {
@@ -244,6 +284,14 @@ function triggerAvatarReactionAnimation(score) {
 // PARTICLE BURST + FLOATING SCORE POPUP
 // ============================================================
 
+const POSITIVE_COMIC_WORDS = ["POW!", "LET'S GO!", "W!", "YESSS!", "BOOM!"];
+const NEGATIVE_COMIC_WORDS = ["OOF!", "BRUH!", "L!", "YIKES!", "NOPE!"];
+
+function getRandomComicWord(score) {
+  const pool = score >= 0 ? POSITIVE_COMIC_WORDS : NEGATIVE_COMIC_WORDS;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
 function spawnScoreEffects(score) {
   const fxLayer = document.getElementById("fx-layer");
   const wrap = document.querySelector(".canvas-wrap");
@@ -262,8 +310,14 @@ function spawnScoreEffects(score) {
 function spawnScorePopup(fxLayer, x, y, score) {
   const popup = document.createElement("div");
   popup.className = "score-popup";
-  popup.textContent = (score >= 0 ? "+" : "") + score;
-  popup.style.color = score >= 0 ? "#6bff8f" : "#ff6b6b";
+
+  const word = getRandomComicWord(score);
+  const color = score >= 0 ? "var(--comic-green)" : "var(--comic-red)";
+
+  popup.innerHTML = `
+    <span class="comic-word" style="color: ${color};">${word}</span>
+    <span class="comic-score" style="color: ${color};">${(score >= 0 ? "+" : "") + score}</span>
+  `;
   popup.style.left = x + "px";
   popup.style.top = y + "px";
 
@@ -273,8 +327,8 @@ function spawnScorePopup(fxLayer, x, y, score) {
 
 function spawnParticleBurst(fxLayer, x, y, score) {
   const particleCount = 16;
-  const goodColors = ["#6bff8f", "#ffd93d", "#7c6cf0"];
-  const badColors = ["#ff6b6b", "#8a8f9e", "#5a4a4a"];
+  const goodColors = ["#2BB673", "#FFD400", "#1C4FD6"];
+  const badColors = ["#ED1B2F", "#8B3FE8", "#111111"];
   const colors = score >= 0 ? goodColors : badColors;
 
   for (let i = 0; i < particleCount; i++) {
@@ -291,7 +345,7 @@ function spawnParticleBurst(fxLayer, x, y, score) {
     particle.style.setProperty("--ty", ty + "px");
     particle.style.left = x + "px";
     particle.style.top = y + "px";
-    const size = 4 + Math.random() * 5;
+    const size = 5 + Math.random() * 5;
     particle.style.width = size + "px";
     particle.style.height = size + "px";
     particle.style.background = colors[Math.floor(Math.random() * colors.length)];
@@ -319,7 +373,9 @@ function triggerHappinessBarPulse() {
 }
 
 function updateHappinessDisplay() {
-  document.getElementById("happiness-bar-fill").style.width = happiness + "%";
+  const fill = document.getElementById("happiness-bar-fill");
+  fill.style.width = happiness + "%";
+  fill.style.backgroundColor = getChargeColor(happiness);
   document.getElementById("happiness-value").textContent = happiness;
   updateChargeRing();
 }
@@ -340,11 +396,12 @@ function updateChargeRing() {
   ring.style.stroke = getChargeColor(happiness);
 }
 
-// Interpolates red -> yellow -> green as happiness goes 0 -> 50 -> 100
+// Interpolates comic-red -> comic-yellow -> comic-green as happiness
+// goes 0 -> 50 -> 100, matching the CSS custom properties in style.css
 function getChargeColor(percent) {
-  const red = [255, 107, 107];
-  const yellow = [255, 217, 61];
-  const green = [107, 255, 143];
+  const red = [237, 27, 47];     // --comic-red
+  const yellow = [255, 212, 0];  // --comic-yellow
+  const green = [43, 182, 115];  // --comic-green
 
   let start, end, t;
   if (percent <= 50) {
@@ -371,7 +428,7 @@ function getChargeColor(percent) {
 function showStatus(message, isError = false) {
   const el = document.getElementById("status-msg");
   el.textContent = message;
-  el.style.color = isError ? "#ff6b6b" : "#7fdb8f";
+  el.style.color = isError ? "#ED1B2F" : "#2BB673";
   setTimeout(() => { el.textContent = ""; }, 3000);
 }
 
